@@ -2,6 +2,8 @@
 Eurorack LFO Module based on SAMD21/ Xiao
 
 
+![image of module](https://github.com/cctvfm/covenlfo/blob/main/IMG_E0173-01.jpeg)
+
 # How to Hack Your Coven LFO  
 
 
