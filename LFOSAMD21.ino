@@ -139,15 +139,15 @@ void loop() {
 
       
 
-      else if(syncCounter%divs[divSelect-1][1] == 0){ // div 2
+      if(syncCounter%divs[divSelect-1][1] == 0){ // div 2
         accumulator2 = 0;
       }
 
-      else if(syncCounter%divs[divSelect-1][2] == 0){ // div 3
+      if(syncCounter%divs[divSelect-1][2] == 0){ // div 3
         accumulator3 = 0;
       }
 
-      else if(syncCounter%divs[divSelect-1][3] ==0){ // div 4
+      if(syncCounter%divs[divSelect-1][3] ==0){ // div 4
         accumulator4 = 0;
       }
     
@@ -199,6 +199,16 @@ void loop() {
         {
           debounceState = 3;
           debounceTime=millis();
+          accumulator1=0; 
+          accumulator2=0; 
+          accumulator3=0; 
+          accumulator4=0;
+          phasor1 = 0;
+          phasor2 = 0;
+          phasor3 = 0;
+          phasor4 = 0;
+          delay(2000);
+          
           divSelect++;
             if(divSelect>DIVSIZE){
                divSelect=1;
