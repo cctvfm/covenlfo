@@ -1,5 +1,5 @@
 # covenlfo
-Eurorack LFO Module based on SAMD21/ Xiao
+super witchy eurorack LFO Module based on SAMD21/ Xiao
 
 
 ![image of module](https://github.com/cctvfm/covenlfo/blob/main/IMG_E0173-01.jpeg)
