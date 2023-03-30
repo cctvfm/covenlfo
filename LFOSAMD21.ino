@@ -1,3 +1,9 @@
+//V1.1
+//March 30 2023
+//Implemented changes suggested by ryokell
+//Out of order divs
+//Non-1 first div
+
 #include <FlashAsEEPROM_SAMD.h>
 #include <avr/pgmspace.h>
 #include "antilog.h"
@@ -126,18 +132,42 @@ void loop() {
       Periud = (Time2 - Time1); // Find the period by subtracting Time2 from Time1 
       syncFrequency = 1000000;
       syncFrequency = syncFrequency/Periud; // NEW FREQUENCY HERE 
-      accumulator1=0; 
+      
+      if(divs[divSelect-1][0] == 1)
+      {
+        //if the first divider is 1, clear acc 1 every rising edge to keep synced
+        accumulator1=0;
+      }
+      if(divs[divSelect-1][1] == 1)
+      {
+        //if the second divider is 1, clear acc 2
+        accumulator2=0;
+      }
+      if(divs[divSelect-1][2] == 1)
+      {
+        //if the third divider is 1, clear acc 3
+        accumulator3=0;
+      }
+      if(divs[divSelect-1][3] == 1)
+      {
+        //if the fourth divider is 1, clear acc 4
+        accumulator4=0;
+      }
+      
       Time1 = Time2;
       
       
-      if(syncCounter == 0)  //first time calculation, clear all accs
+      if(syncCounter == 0)  //first time calculation, clear all accs so waveform starts at 0 and begins synced
       {
+        accumulator1=0;
         accumulator2=0;  
         accumulator3=0;
         accumulator4=0;
       }
 
-      
+      if(syncCounter%divs[divSelect-1][0] == 0){ // div 1
+        accumulator1 = 0;
+      }
 
       if(syncCounter%divs[divSelect-1][1] == 0){ // div 2
         accumulator2 = 0;
@@ -152,7 +182,7 @@ void loop() {
       }
     
 
-      if((syncCounter%divs[divSelect-1][1] == 0) && (syncCounter%divs[divSelect-1][2] == 0) && (syncCounter%divs[divSelect-1][3] == 0)){
+      if((syncCounter%divs[divSelect-1][0] == 0) && (syncCounter%divs[divSelect-1][1] == 0) && (syncCounter%divs[divSelect-1][2] == 0) && (syncCounter%divs[divSelect-1][3] == 0)){
         syncCounter = 0;
         
       }
@@ -280,10 +310,10 @@ void loop() {
 
   tempphasor=sweepValue*HZPHASOR;
  
-  phasor1=(unsigned long int)tempphasor;
-  phasor2=phasor1/divs[divSelect-1][1]; // dividing down for the slower outputs 
-  phasor3=phasor1/divs[divSelect-1][2];
-  phasor4=phasor1/divs[divSelect-1][3];
+  phasor1=(unsigned long int)tempphasor/divs[divSelect-1][0];
+  phasor2=(unsigned long int)tempphasor/divs[divSelect-1][1]; // dividing down for the slower outputs 
+  phasor3=(unsigned long int)tempphasor/divs[divSelect-1][2];
+  phasor4=(unsigned long int)tempphasor/divs[divSelect-1][3];
 
 }
 
@@ -410,7 +440,7 @@ void setupTimers() // used to set up fast PWM on pins 1,9,2,3
   
 }
 
-void TCC0_Handler() // This doesn't appear to be called in the main code so how is it working??
+void TCC0_Handler() 
 {
   if (TCC0->INTFLAG.bit.CNT == 1) { //*************************************************
    accumulator1 = accumulator1 + phasor1;
