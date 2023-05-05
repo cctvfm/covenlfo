@@ -292,23 +292,33 @@ void loop() {
   cv1Value = filterGet(FREQ);; // at this stage, a -12V CV corresponds to +3.3V (1023 as an analog read) on the XIAO (Because of the inverting op-amp)
   
   cv1Value = 1023-cv1Value; // so we want to invert it (making -12V correspond to 0V on the XIAO)
-  cv1Value = cv1Value - 600;  //at this point cv1Value contains between -512 and +511 (this line used to center values around zero)
+  cv1Value = cv1Value - 565;  //at this point cv1Value contains between -512 and +511 (this line used to center values around zero)
   
   if(Mode == 1){ //better way to update sweepvalue with sync frequency
   sweepValue = syncFrequency;
   }
   else
   {
-   sweepValue=pgm_read_float_near(hzcurve + potValue);
+      if( (Mode == 0) && ( (cv1Value > 20) || (cv1Value < -20) )  ){// Don't want the frequency to be considered if the cv input is close to 0 (+/- 20) 
+        int totalcv = potValue+cv1Value;
+        if(totalcv <0)
+          totalcv = 0;
+        else if(totalcv>1023)
+          totalcv = 1023;
+          
+        sweepValue=pgm_read_float_near(hzcurve + totalcv);
+      }
+      else
+        sweepValue=pgm_read_float_near(hzcurve + potValue);
 
   }
 
-  if((Mode == 0) &&(!(cv1Value < 20) && (cv1Value > -20))){// Don't want the frequency to be considered if the cv input is close to 0 (+/- 20) 
-    sweepValue = sweepValue + cv1Value; // Frequency additive with pot value 
-  }
+
 
 
   tempphasor=sweepValue*HZPHASOR;
+
+
  
   phasor1=(unsigned long int)tempphasor/divs[divSelect-1][0];
   phasor2=(unsigned long int)tempphasor/divs[divSelect-1][1]; // dividing down for the slower outputs 
