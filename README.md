@@ -26,3 +26,13 @@ Select the Xiao Board: Tools -> Board -> Seeed SAMD -> Seeeduino Xiao
 Once you have the Arduino IDE installed and recognizing your XIAO and have installed the “FlashStorage_SAMD” library, you are now ready to compile the code and modify it until your heart and ears are content.  
 
 Read the comments for more info on what to HACK
+
+
+# How to Update using UF2
+
+Update can be done by dragging the UF2 file onto the boot disk. The boot disk appears by:
+
+Connecting the Xiao to USB, **Do not connect Eurorack Power at the same time**
+Double tap the reset pin pair with tweezers
+Confirm that an "Arduino" Folder appears in Finder/Explorer.
+Drag the UF2 file to the root disk directory.
