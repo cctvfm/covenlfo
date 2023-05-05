@@ -33,6 +33,9 @@ Read the comments for more info on what to HACK
 Update can be done by dragging the UF2 file onto the boot disk. The boot disk appears by:
 
 Connecting the Xiao to USB, **Do not connect Eurorack Power at the same time**
+
 Double tap the reset pin pair with tweezers
+
 Confirm that an "Arduino" Folder appears in Finder/Explorer.
+
 Drag the UF2 file to the root disk directory.
