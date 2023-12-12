@@ -331,14 +331,16 @@ void loop() {
 
 unsigned long int previous_acc[4];
 
-unsigned char generator(unsigned long int acc, char waveshape, char channel) {
-
-unsigned char shifted_acc = acc>>24;
-
+unsigned int generator(unsigned long int acc, char waveshape, char channel) {
+//December 12 - Adjusted for 9 bit
+//unsigned char shifted_acc = acc>>24;
+unsigned int shifted_acc = acc>>23;
+#define HALFPOINT 255
+#define MAXPOINT 511
 
   if (waveshape == SQUARE) {
-    if ((shifted_acc)>127) {
-      return 255;
+    if ((shifted_acc)>HALFPOINT) {
+      return MAXPOINT;
     }
     else
     {
@@ -351,25 +353,26 @@ unsigned char shifted_acc = acc>>24;
   }
 
   if (waveshape == TRIANGLE){
-    if ((shifted_acc)<127)
+    if ((shifted_acc)<=HALFPOINT)
       {
-        return ((shifted_acc)<<1);
+        return ((shifted_acc<<1));
       }
-    else if (shifted_acc == 127){
-      return 255;  
-    }
-    else //greater than 127 (128-255)
+    /*else if (shifted_acc == HALFPOINT){
+      return 512;  
+    }*/
+    else //greater than HALFPOINT
     {
-      return ((255-shifted_acc)<<1);
+      return ((MAXPOINT-(shifted_acc))<<1);
+      
     }
   }
   // WANT TO IMPLEMENT RANDOM SQUARE WAVESHAPE HERE 
 
    if(waveshape == RANDOM) {
     
-      if(shifted_acc < previous_acc[channel] ) // LESS THAN PREVIOUS NOT SURE HOW TO IMPLEMENT THIS 
+      if(shifted_acc < previous_acc[channel] ) // Do this so we only update everytime we loop around the accumulator
       {
-        randNum[channel] = random(255);
+        randNum[channel] = random(MAXPOINT);
         
       }
     
@@ -378,7 +381,7 @@ unsigned char shifted_acc = acc>>24;
  
    }
 
- 
+  return 0;
      
 }
 
@@ -394,7 +397,7 @@ void setupTimers() // used to set up fast PWM on pins 1,9,2,3
                      GCLK_GENCTRL_SRC_DFLL48M |   // Set the 48MHz clock source
                      GCLK_GENCTRL_ID(4);          //// Select GCLK4
   while (GCLK->STATUS.bit.SYNCBUSY);              // Wait for synchronization
-
+  
   //enable our 4 pins to be PWM outputs
   PORT->Group[g_APinDescription[1].ulPort].PINCFG[g_APinDescription[1].ulPin].bit.PMUXEN = 1;
   PORT->Group[g_APinDescription[9].ulPort].PINCFG[g_APinDescription[9].ulPin].bit.PMUXEN = 1;
@@ -424,7 +427,7 @@ void setupTimers() // used to set up fast PWM on pins 1,9,2,3
 
   // Each timer counts up to a maximum or TOP value set by the PER register,
   // this determines the frequency of the PWM operation: Freq = 48Mhz/(2*N*PER)
-  REG_TCC0_PER = 0xFF;                           // Set the FreqTcc and period of the PWM on TCC1
+  REG_TCC0_PER = 0x1FF;                           // Set the FreqTcc and period of the PWM on TCC1
   while (TCC0->SYNCBUSY.bit.PER);                // Wait for synchronization
  
   REG_TCC0_CC1 = 10;                             // TCC1 CC1 - on D3  50% pin 9
@@ -437,10 +440,10 @@ void setupTimers() // used to set up fast PWM on pins 1,9,2,3
   while (TCC0->SYNCBUSY.bit.CC3);                   // Wait for synchronization
  
   // Divide the GCLOCK signal by 1 giving  in this case 48MHz (20.83ns) TCC1 timer tick and enable the outputs
-  REG_TCC0_CTRLA |= TCC_CTRLA_PRESCALER_DIV2 |    // Divide GCLK4 by 1 ****************************************************************************
+  REG_TCC0_CTRLA |= TCC_CTRLA_PRESCALER_DIV1 |    // Divide GCLK4 by 1 ****************************************************************************
                     TCC_CTRLA_ENABLE;             // Enable the TCC0 output
   while (TCC0->SYNCBUSY.bit.ENABLE);              // Wait for synchronization
-
+  
   TCC0->INTENSET.reg = 0;
   TCC0->INTENSET.bit.CNT = 1;  //*****************************************************
   TCC0->INTENSET.bit.MC0 = 0;
